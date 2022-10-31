@@ -1,21 +1,22 @@
-from jenkins/jenkins:2.282-alpine
+FROM jenkins/jenkins:2.365
 USER root
 # Pipeline
-RUN /usr/local/bin/install-plugins.sh workflow-aggregator && \
-    /usr/local/bin/install-plugins.sh github && \
-    /usr/local/bin/install-plugins.sh ws-cleanup && \
-    /usr/local/bin/install-plugins.sh greenballs && \
-    /usr/local/bin/install-plugins.sh simple-theme-plugin && \
-    /usr/local/bin/install-plugins.sh kubernetes && \
-    /usr/local/bin/install-plugins.sh docker-workflow && \
-    /usr/local/bin/install-plugins.sh kubernetes-cli && \
-    /usr/local/bin/install-plugins.sh github-branch-source
+RUN jenkins-plugin-cli -p workflow-aggregator && \
+    jenkins-plugin-cli -p github && \
+    jenkins-plugin-cli -p ws-cleanup && \
+    jenkins-plugin-cli -p greenballs && \
+    jenkins-plugin-cli -p simple-theme-plugin && \
+    jenkins-plugin-cli -p kubernetes && \
+    jenkins-plugin-cli -p docker-workflow && \
+    jenkins-plugin-cli -p kubernetes-cli && \
+    jenkins-plugin-cli -p github-branch-source
 
 # install Maven, Java, Docker, AWS
-RUN apk add --no-cache maven \
-    openjdk8 \
+RUN apt-get update && apt-get install -y software-properties-common && apt-add-repository 'deb http://security.debian.org/debian-security stretch/updates main' && apt-get update && apt-get install -y maven \
+    openjdk-8-jdk \
     docker \
-    gettext
+    gettext \
+    wget
 
 # Kubectl
 RUN  wget https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
